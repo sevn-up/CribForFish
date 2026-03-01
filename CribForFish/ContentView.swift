@@ -10,46 +10,46 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var engine = GameEngine()
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
-        }
-    }
+        ZStack {
+            OceanTheme.headerBackground.ignoresSafeArea()
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
+            VStack(spacing: 0) {
+                ScoreHeaderView(
+                    players: engine.players,
+                    activeIndex: engine.activePlayerIndex
+                )
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+                Color.white.opacity(0.1).frame(height: 1)
+
+                GameBoardView(
+                    players: engine.players,
+                    leadingHole: engine.leadingHole
+                )
+
+                Color.white.opacity(0.1).frame(height: 1)
+
+                ScoreInputView(engine: engine)
+            }
+
+            if engine.isGameOver, let winnerIdx = engine.winnerIndex {
+                WinOverlayView(
+                    winnerName: engine.players[winnerIdx].name,
+                    winnerColor: engine.players[winnerIdx].color.color,
+                    onNewGame: { engine.newGame() }
+                )
+            }
+        }
+        .preferredColorScheme(.dark)
+        .onAppear {
+            engine.load(context: modelContext)
+        }
+        .onChange(of: scenePhase) {
+            if scenePhase == .background {
+                engine.save()
             }
         }
     }
@@ -57,5 +57,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: GameState.self, inMemory: true)
 }
