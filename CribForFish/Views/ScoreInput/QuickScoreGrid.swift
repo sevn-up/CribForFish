@@ -1,28 +1,22 @@
 import SwiftUI
 
 struct QuickScoreGrid: View {
-    let scores: [Int]
     let activeColor: Color
     let onScore: (Int) -> Void
 
+    private let scores = Array(1...28)
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 5)
 
     var body: some View {
         VStack(spacing: 8) {
             LazyVGrid(columns: columns, spacing: 8) {
-                ForEach(regularScores, id: \.self) { value in
+                ForEach(scores, id: \.self) { value in
                     scoreButton(value: value)
                 }
             }
 
-            if scores.contains(29) {
-                perfect29Button
-            }
+            perfect29Button
         }
-    }
-
-    private var regularScores: [Int] {
-        scores.filter { $0 != 29 }
     }
 
     private func scoreButton(value: Int) -> some View {
@@ -46,12 +40,12 @@ struct QuickScoreGrid: View {
             onScore(29)
         } label: {
             HStack(spacing: 8) {
-                Image(systemName: "fish.fill")
+                Image(systemName: "star.fill")
                     .font(.body)
                 Text("Perfect 29")
                     .font(.title3)
                     .fontWeight(.bold)
-                Image(systemName: "fish.fill")
+                Image(systemName: "star.fill")
                     .font(.body)
             }
             .frame(maxWidth: .infinity)

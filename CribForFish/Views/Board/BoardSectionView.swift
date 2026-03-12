@@ -9,12 +9,12 @@ struct BoardSectionView: View {
         VStack(spacing: 0) {
             // Section label
             HStack(spacing: 4) {
-                Image(systemName: "water.waves")
+                Image(systemName: "road.lanes")
                     .font(.caption2)
-                Text(section == 0 ? "Shallows (1–60)" : "Deep Water (61–120)")
+                Text(section == 0 ? "1st Street (1\u{2013}60)" : "2nd Street (61\u{2013}120)")
                     .font(.caption2)
             }
-            .foregroundStyle(OceanTheme.secondaryText)
+            .foregroundStyle(BoardTheme.secondaryText)
             .padding(.bottom, 4)
 
             HStack(alignment: .top, spacing: 16) {
@@ -32,9 +32,9 @@ struct BoardSectionView: View {
 
             // Turnaround indicator
             HStack(spacing: 2) {
-                Image(systemName: "water.waves")
+                Image(systemName: "arrow.turn.right.down")
                     .font(.caption2)
-                    .foregroundStyle(OceanTheme.secondaryText)
+                    .foregroundStyle(BoardTheme.secondaryText)
             }
             .padding(.top, 4)
         }
@@ -43,7 +43,7 @@ struct BoardSectionView: View {
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(OceanTheme.sectionBackground)
+                .fill(BoardTheme.sectionBackground)
                 .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
         )
     }

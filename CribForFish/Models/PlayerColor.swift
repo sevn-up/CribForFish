@@ -1,23 +1,23 @@
 import SwiftUI
 
 enum PlayerColor: Int, Codable, CaseIterable {
-    case coral = 0
-    case ocean = 1
-    case kelp = 2
+    case red = 0
+    case blue = 1
+    case green = 2
 
     var color: Color {
         switch self {
-        case .coral: Color(red: 1.0, green: 0.45, blue: 0.40)
-        case .ocean: Color(red: 0.25, green: 0.55, blue: 1.0)
-        case .kelp: Color(red: 0.20, green: 0.80, blue: 0.65)
+        case .red: Color(red: 0.90, green: 0.25, blue: 0.20)
+        case .blue: Color(red: 0.30, green: 0.60, blue: 1.0)
+        case .green: Color(red: 0.25, green: 0.85, blue: 0.40)
         }
     }
 
     var name: String {
         switch self {
-        case .coral: "Coral"
-        case .ocean: "Ocean"
-        case .kelp: "Kelp"
+        case .red: "Red"
+        case .blue: "Blue"
+        case .green: "Green"
         }
     }
 }

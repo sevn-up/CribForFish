@@ -26,20 +26,21 @@ struct HoleDotView: View {
             .overlay {
                 if pegState == .empty {
                     Circle()
-                        .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+                        .stroke(Color.white.opacity(0.2), lineWidth: 1.0)
                 } else {
                     Circle()
-                        .stroke(color.opacity(0.5), lineWidth: 1)
+                        .stroke(color.opacity(0.5), lineWidth: pegState == .front ? 1.5 : 1)
                 }
             }
+            .shadow(color: pegState == .front ? color.opacity(0.4) : .clear, radius: 2, y: 1)
             .animation(.easeInOut(duration: 0.25), value: pegState)
     }
 
     private var dotSize: CGFloat {
         switch pegState {
-        case .front: 16
-        case .back: 12
-        case .empty: 8
+        case .front: 20
+        case .back: 15
+        case .empty: 10
         }
     }
 
@@ -47,7 +48,7 @@ struct HoleDotView: View {
         switch pegState {
         case .front: color
         case .back: color.opacity(0.6)
-        case .empty: OceanTheme.emptyHole
+        case .empty: BoardTheme.emptyHole
         }
     }
 

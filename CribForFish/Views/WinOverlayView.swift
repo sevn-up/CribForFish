@@ -11,13 +11,13 @@ struct WinOverlayView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 20) {
-                Image(systemName: "fish.fill")
+                Image(systemName: "trophy.fill")
                     .font(.system(size: 60))
                     .foregroundStyle(winnerColor)
 
-                Text("What a Catch!")
+                Text("Game Over!")
                     .font(.title3)
-                    .foregroundStyle(OceanTheme.secondaryText)
+                    .foregroundStyle(BoardTheme.secondaryText)
 
                 Text("\(winnerName) Wins!")
                     .font(.largeTitle)
@@ -33,7 +33,7 @@ struct WinOverlayView: View {
                 } label: {
                     HStack(spacing: 8) {
                         Image(systemName: "arrow.counterclockwise")
-                        Text("Cast Again")
+                        Text("Play Again")
                     }
                     .font(.headline)
                     .foregroundStyle(.white)
@@ -49,7 +49,7 @@ struct WinOverlayView: View {
             .padding(40)
             .background(
                 RoundedRectangle(cornerRadius: 24)
-                    .fill(OceanTheme.sectionBackground.opacity(0.95))
+                    .fill(BoardTheme.sectionBackground.opacity(0.95))
             )
         }
         .transition(.opacity)

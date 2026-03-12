@@ -7,7 +7,7 @@ struct PlayerState: Codable, Equatable {
     var backPeg: Int   // previous score position (0 = start)
 
     var color: PlayerColor {
-        PlayerColor(rawValue: colorIndex) ?? .coral
+        PlayerColor(rawValue: colorIndex) ?? .red
     }
 
     var hasWon: Bool {

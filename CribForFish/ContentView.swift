@@ -12,40 +12,34 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @State private var engine = GameEngine()
+    @State private var selectedTab = 0
 
     var body: some View {
-        ZStack {
-            OceanTheme.headerBackground.ignoresSafeArea()
+        TabView(selection: $selectedTab) {
+            GameView(engine: engine)
+                .tabItem {
+                    Label("Game", systemImage: "gamecontroller.fill")
+                }
+                .tag(0)
 
-            VStack(spacing: 0) {
-                ScoreHeaderView(
-                    players: engine.players,
-                    activeIndex: engine.activePlayerIndex
-                )
+            StatsTabView()
+                .tabItem {
+                    Label("Stats", systemImage: "chart.bar.fill")
+                }
+                .tag(1)
 
-                Color.white.opacity(0.1).frame(height: 1)
-
-                GameBoardView(
-                    players: engine.players,
-                    leadingHole: engine.leadingHole
-                )
-
-                Color.white.opacity(0.1).frame(height: 1)
-
-                ScoreInputView(engine: engine)
-            }
-
-            if engine.isGameOver, let winnerIdx = engine.winnerIndex {
-                WinOverlayView(
-                    winnerName: engine.players[winnerIdx].name,
-                    winnerColor: engine.players[winnerIdx].color.color,
-                    onNewGame: { engine.newGame() }
-                )
-            }
+            TournamentListView()
+                .tabItem {
+                    Label("Tournaments", systemImage: "trophy.fill")
+                }
+                .tag(2)
         }
+        .tint(.white)
         .preferredColorScheme(.dark)
         .onAppear {
-            engine.load(context: modelContext)
+            engine.persistence = GamePersistence(context: modelContext)
+            engine.load()
+            styleTabBar()
         }
         .onChange(of: scenePhase) {
             if scenePhase == .background {
@@ -53,9 +47,17 @@ struct ContentView: View {
             }
         }
     }
+
+    private func styleTabBar() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(BoardTheme.headerBackground)
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: GameState.self, inMemory: true)
+        .modelContainer(for: [GameState.self, PlayerProfile.self, GameRecord.self, Tournament.self], inMemory: true)
 }

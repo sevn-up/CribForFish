@@ -35,7 +35,7 @@ struct GameBoardView: View {
                 scrollToLeadingHole(proxy: proxy, animated: true)
             }
         }
-        .background(OceanTheme.boardGradient)
+        .background(BoardTheme.boardGradient)
     }
 
     private func scrollToLeadingHole(proxy: ScrollViewProxy, animated: Bool) {
@@ -62,14 +62,14 @@ struct GameBoardView: View {
 
     private var startArea: some View {
         HStack(spacing: 12) {
-            Image(systemName: "anchor.circle.fill")
+            Image(systemName: "flag.fill")
                 .font(.title3)
-                .foregroundStyle(OceanTheme.secondaryText)
+                .foregroundStyle(BoardTheme.secondaryText)
 
-            Text("LAUNCH")
+            Text("START")
                 .font(.caption)
                 .fontWeight(.semibold)
-                .foregroundStyle(OceanTheme.secondaryText)
+                .foregroundStyle(BoardTheme.secondaryText)
 
             HStack(spacing: 8) {
                 ForEach(0..<players.count, id: \.self) { idx in
@@ -83,25 +83,25 @@ struct GameBoardView: View {
         .padding(.vertical, 10)
         .background(
             Capsule()
-                .fill(OceanTheme.sectionBackground)
+                .fill(BoardTheme.sectionBackground)
         )
     }
 
     private var winningHole: some View {
         VStack(spacing: 6) {
-            Image(systemName: "fish.circle.fill")
+            Image(systemName: "trophy.circle.fill")
                 .font(.system(size: 28))
                 .foregroundStyle(.yellow)
 
-            Text("THE CATCH")
+            Text("FINISH")
                 .font(.headline)
                 .fontWeight(.bold)
-                .foregroundStyle(OceanTheme.primaryText)
+                .foregroundStyle(BoardTheme.primaryText)
 
             HStack(spacing: 8) {
                 ForEach(0..<players.count, id: \.self) { idx in
                     Circle()
-                        .fill(players[idx].frontPeg >= 121 ? players[idx].color.color : OceanTheme.emptyHole)
+                        .fill(players[idx].frontPeg >= 121 ? players[idx].color.color : BoardTheme.emptyHole)
                         .frame(width: 14, height: 14)
                         .overlay(
                             Circle()
@@ -112,12 +112,12 @@ struct GameBoardView: View {
 
             Text("121")
                 .font(.caption)
-                .foregroundStyle(OceanTheme.secondaryText)
+                .foregroundStyle(BoardTheme.secondaryText)
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(OceanTheme.sectionBackground)
+                .fill(BoardTheme.sectionBackground)
                 .shadow(color: .black.opacity(0.2), radius: 3, y: 2)
         )
     }

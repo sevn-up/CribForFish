@@ -8,7 +8,7 @@ struct HoleRowView: View {
     let players: [PlayerState]
 
     var body: some View {
-        HStack(spacing: 5) {
+        HStack(spacing: 6) {
             ForEach(0..<5, id: \.self) { position in
                 let hole = BoardLayout.holeNumber(
                     section: section,
