@@ -13,6 +13,9 @@ struct CribForFishApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             GameState.self,
+            PlayerProfile.self,
+            GameRecord.self,
+            Tournament.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

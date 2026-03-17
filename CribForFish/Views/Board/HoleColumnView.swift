@@ -15,6 +15,6 @@ struct HoleColumnView: View {
                 )
             }
         }
-        .frame(width: 22)
+        .frame(minWidth: 26)
     }
 }

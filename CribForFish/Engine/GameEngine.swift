@@ -3,15 +3,17 @@ import SwiftData
 import SwiftUI
 
 @Observable
-final class GameEngine {
+final class GameEngine: GameEngineProtocol {
     var players: [PlayerState]
     var moves: [Move]
     var activePlayerIndex: Int
     var isGameOver: Bool
     var winnerIndex: Int?
     var playerCount: Int
+    var dealerIndex: Int
+    var tournamentMatchID: String?
 
-    private var modelContext: ModelContext?
+    var persistence: GamePersistence?
     private var gameState: GameState?
 
     static func defaultPlayers(count: Int) -> [PlayerState] {
@@ -27,16 +29,13 @@ final class GameEngine {
         self.moves = []
         self.activePlayerIndex = 0
         self.isGameOver = false
+        self.dealerIndex = 0
     }
 
-    func load(context: ModelContext) {
-        self.modelContext = context
+    func load() {
+        guard let persistence else { return }
 
-        let descriptor = FetchDescriptor<GameState>(
-            sortBy: [SortDescriptor(\.lastModified, order: .reverse)]
-        )
-
-        if let existing = try? context.fetch(descriptor).first {
+        if let existing = persistence.loadLatestGame() {
             self.gameState = existing
             self.playerCount = existing.playerCount
             self.players = existing.players
@@ -44,9 +43,9 @@ final class GameEngine {
             self.activePlayerIndex = existing.activePlayerIndex
             self.isGameOver = existing.isGameOver
             self.winnerIndex = players.firstIndex(where: { $0.hasWon })
+            self.dealerIndex = existing.dealerIndex
         } else {
-            let state = GameState(playerCount: playerCount)
-            context.insert(state)
+            let state = persistence.createGame(playerCount: playerCount)
             self.gameState = state
             save()
         }
@@ -65,22 +64,20 @@ final class GameEngine {
         )
         moves.append(move)
 
-        // Back peg moves to where front peg was
         players[idx].backPeg = players[idx].frontPeg
-        // Front peg advances, capped at 121
         players[idx].frontPeg = min(players[idx].frontPeg + points, 121)
 
         if players[idx].hasWon {
             isGameOver = true
             winnerIndex = idx
-            triggerHaptic(.notification(.init(rawValue: 0)!))
+            recordGameIfNeeded()
+            HapticManager.winNotification()
         } else {
-            // Auto-advance to next player
-            activePlayerIndex = (idx + 1) % players.count
+            // No auto-advance — active player stays until user explicitly switches
             if points == 29 {
-                triggerHaptic(.notification(.init(rawValue: 0)!))
+                HapticManager.perfect29()
             } else {
-                triggerHaptic(.impact(.init(rawValue: 1)!))
+                HapticManager.scoreImpact()
             }
         }
 
@@ -97,6 +94,7 @@ final class GameEngine {
         if isGameOver {
             isGameOver = false
             winnerIndex = nil
+            gameState?.recorded = false
         }
 
         activePlayerIndex = idx
@@ -112,6 +110,25 @@ final class GameEngine {
         activePlayerIndex = 0
         isGameOver = false
         winnerIndex = nil
+        dealerIndex = 0
+        tournamentMatchID = nil
+        gameState?.recorded = false
+        save()
+    }
+
+    func newGame(profiles: [PlayerProfile]) {
+        self.playerCount = profiles.count
+        self.players = profiles.enumerated().map { idx, profile in
+            PlayerState(name: profile.name, colorIndex: profile.colorIndex, frontPeg: 0, backPeg: 0)
+        }
+        moves = []
+        activePlayerIndex = 0
+        isGameOver = false
+        winnerIndex = nil
+        dealerIndex = 0
+        tournamentMatchID = nil
+        gameState?.recorded = false
+        gameState?.playerProfileIDs = profiles.compactMap { $0.persistentModelID.hashValue.description }
         save()
     }
 
@@ -125,28 +142,16 @@ final class GameEngine {
     }
 
     func save() {
-        gameState?.playerCount = playerCount
-        gameState?.players = players
-        gameState?.moves = moves
-        gameState?.activePlayerIndex = activePlayerIndex
-        gameState?.isGameOver = isGameOver
-        gameState?.lastModified = Date()
-        try? modelContext?.save()
+        guard let gameState, let persistence else { return }
+        persistence.save(gameState, players: players, moves: moves,
+                        playerCount: playerCount, activePlayerIndex: activePlayerIndex,
+                        isGameOver: isGameOver, dealerIndex: dealerIndex)
     }
 
-    private func triggerHaptic(_ type: HapticType) {
-        #if os(iOS)
-        switch type {
-        case .impact(let style):
-            UIImpactFeedbackGenerator(style: style).impactOccurred()
-        case .notification(let notifType):
-            UINotificationFeedbackGenerator().notificationOccurred(notifType)
-        }
-        #endif
-    }
-
-    private enum HapticType {
-        case impact(UIImpactFeedbackGenerator.FeedbackStyle)
-        case notification(UINotificationFeedbackGenerator.FeedbackType)
+    private func recordGameIfNeeded() {
+        guard let winnerIndex, gameState?.recorded != true, let persistence else { return }
+        _ = persistence.recordGame(players: players, moves: moves,
+                                    winnerIndex: winnerIndex, tournamentID: tournamentMatchID)
+        gameState?.recorded = true
     }
 }

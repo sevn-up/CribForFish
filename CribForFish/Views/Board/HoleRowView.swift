@@ -1,22 +1,19 @@
 import SwiftUI
 
-/// A row of 5 hole positions (one group of 5).
+/// A single hole position showing all player pegs side by side horizontally.
+/// Used in the vertical board layout where holes run top-to-bottom.
 struct HoleRowView: View {
-    let section: Int
-    let column: Int
-    let row: Int
+    let holeNumber: Int
     let players: [PlayerState]
 
     var body: some View {
-        HStack(spacing: 5) {
-            ForEach(0..<5, id: \.self) { position in
-                let hole = BoardLayout.holeNumber(
-                    section: section,
-                    column: column,
-                    row: row,
-                    position: position
+        HStack(spacing: 3) {
+            ForEach(0..<players.count, id: \.self) { idx in
+                HoleDotView(
+                    holeNumber: holeNumber,
+                    playerIndex: idx,
+                    players: players
                 )
-                HoleColumnView(holeNumber: hole, players: players)
             }
         }
     }
