@@ -1,50 +1,8 @@
 import SwiftUI
 
-/// One "street" of the cribbage board: two columns (up + down) = 60 holes with a turnaround.
+/// Legacy view — no longer used in serpentine board layout.
 struct BoardSectionView: View {
-    let section: Int
-    let players: [PlayerState]
-
     var body: some View {
-        VStack(spacing: 0) {
-            // Section label
-            HStack(spacing: 4) {
-                Image(systemName: "road.lanes")
-                    .font(.caption2)
-                Text(section == 0 ? "1st Street (1\u{2013}60)" : "2nd Street (61\u{2013}120)")
-                    .font(.caption2)
-            }
-            .foregroundStyle(BoardTheme.secondaryText)
-            .padding(.bottom, 4)
-
-            HStack(alignment: .top, spacing: 16) {
-                // Left column (ascending)
-                ColumnView(section: section, column: 0, players: players)
-
-                // Divider line
-                Rectangle()
-                    .fill(Color.white.opacity(0.1))
-                    .frame(width: 1)
-
-                // Right column (descending)
-                ColumnView(section: section, column: 1, players: players)
-            }
-
-            // Turnaround indicator
-            HStack(spacing: 2) {
-                Image(systemName: "arrow.turn.right.down")
-                    .font(.caption2)
-                    .foregroundStyle(BoardTheme.secondaryText)
-            }
-            .padding(.top, 4)
-        }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 12)
-        .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(BoardTheme.sectionBackground)
-                .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
-        )
+        EmptyView()
     }
 }

@@ -43,13 +43,21 @@ struct StatsTabView: View {
                                 )
                             } label: {
                                 let h2h = PlayerStats.headToHead(player1: pair.p1, player2: pair.p2, from: records)
-                                HStack {
-                                    Text("\(pair.p1) vs \(pair.p2)")
-                                        .foregroundStyle(.white)
-                                    Spacer()
-                                    Text("\(h2h.p1Wins) - \(h2h.p2Wins)")
-                                        .font(.caption)
-                                        .foregroundStyle(BoardTheme.secondaryText)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    HStack {
+                                        Text("\(pair.p1) vs \(pair.p2)")
+                                            .foregroundStyle(.white)
+                                        Spacer()
+                                        Text("\(h2h.p1Wins) - \(h2h.p2Wins)")
+                                            .font(.caption)
+                                            .foregroundStyle(BoardTheme.secondaryText)
+                                    }
+                                    let breakdown = playerCountBreakdown(p1: pair.p1, p2: pair.p2)
+                                    if breakdown.count > 1 {
+                                        Text(breakdown.map { "\($0.count)P: \($0.p1W)-\($0.p2W)" }.joined(separator: " · "))
+                                            .font(.caption2)
+                                            .foregroundStyle(BoardTheme.secondaryText.opacity(0.7))
+                                    }
                                 }
                             }
                         }
@@ -82,6 +90,16 @@ struct StatsTabView: View {
             }
         }
         return names
+    }
+
+    private func playerCountBreakdown(p1: String, p2: String) -> [(count: Int, p1W: Int, p2W: Int)] {
+        let shared = records.filter { $0.playerNames.contains(p1) && $0.playerNames.contains(p2) }
+        let counts = Set(shared.map(\.playerCount)).sorted()
+        return counts.compactMap { pc in
+            let h2h = PlayerStats.headToHead(player1: p1, player2: p2, from: records, playerCount: pc)
+            guard h2h.games > 0 else { return nil }
+            return (count: pc, p1W: h2h.p1Wins, p2W: h2h.p2Wins)
+        }
     }
 
     private var playerPairs: [PlayerPair] {

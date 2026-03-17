@@ -86,6 +86,17 @@ struct HeadToHeadView: View {
                             .foregroundStyle(record.winnerName == player2 ? .blue : BoardTheme.secondaryText)
                             .frame(maxWidth: .infinity)
 
+                        Text("\(record.playerCount)P")
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .foregroundStyle(BoardTheme.accent)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule()
+                                    .fill(BoardTheme.accent.opacity(0.15))
+                            )
+
                         Text(record.date, style: .date)
                             .font(.caption2)
                             .foregroundStyle(BoardTheme.secondaryText)

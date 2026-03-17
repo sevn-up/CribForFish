@@ -6,7 +6,7 @@ struct HoleColumnView: View {
     let players: [PlayerState]
 
     var body: some View {
-        VStack(spacing: 2) {
+        VStack(spacing: 1) {
             ForEach(0..<players.count, id: \.self) { playerIndex in
                 HoleDotView(
                     holeNumber: holeNumber,
@@ -15,6 +15,6 @@ struct HoleColumnView: View {
                 )
             }
         }
-        .frame(width: 26)
+        .frame(minWidth: 26)
     }
 }

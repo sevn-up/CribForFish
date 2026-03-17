@@ -54,9 +54,12 @@ struct PlayerStats {
         )
     }
 
-    static func headToHead(player1: String, player2: String, from records: [GameRecord]) -> (p1Wins: Int, p2Wins: Int, games: Int) {
-        let shared = records.filter {
+    static func headToHead(player1: String, player2: String, from records: [GameRecord], playerCount: Int? = nil) -> (p1Wins: Int, p2Wins: Int, games: Int) {
+        var shared = records.filter {
             $0.playerNames.contains(player1) && $0.playerNames.contains(player2)
+        }
+        if let playerCount {
+            shared = shared.filter { $0.playerCount == playerCount }
         }
         let p1Wins = shared.filter { $0.winnerName == player1 }.count
         let p2Wins = shared.filter { $0.winnerName == player2 }.count

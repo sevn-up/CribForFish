@@ -5,120 +5,187 @@ struct GameBoardView: View {
     let leadingHole: Int
 
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 16) {
-                    // Start area
-                    startArea
-                        .id("start")
+        VStack(spacing: 0) {
+            startArea
+                .padding(.vertical, 4)
 
-                    // First street (holes 1-60)
-                    BoardSectionView(section: 0, players: players)
-                        .id("section0")
+            HStack(alignment: .top, spacing: 0) {
+                // 1st Street — labels on left edge, dots toward center
+                streetColumn(startHole: 1, labelsOnLeft: true)
 
-                    // Second street (holes 61-120)
-                    BoardSectionView(section: 1, players: players)
-                        .id("section1")
+                // Vertical divider
+                Rectangle()
+                    .fill(BoardTheme.accent.opacity(0.25))
+                    .frame(width: 1.5)
+                    .padding(.top, 14)
 
-                    // Winning hole 121
-                    winningHole
-                        .id("win")
-                }
-                .padding()
+                // 2nd Street — dots toward center, labels on right edge
+                streetColumn(startHole: 61, labelsOnLeft: false)
             }
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    scrollToLeadingHole(proxy: proxy, animated: false)
-                }
-            }
-            .onChange(of: leadingHole) {
-                scrollToLeadingHole(proxy: proxy, animated: true)
-            }
+            .padding(.horizontal, 8)
+
+            finishArea
+                .padding(.vertical, 4)
         }
         .background(BoardTheme.boardGradient)
     }
 
-    private func scrollToLeadingHole(proxy: ScrollViewProxy, animated: Bool) {
-        let action = {
-            if leadingHole >= 121 {
-                proxy.scrollTo("win", anchor: .center)
-            } else if leadingHole > 0 {
-                let loc = BoardLayout.location(forHole: leadingHole)
-                let rowFirstHole = BoardLayout.holeNumber(
-                    section: loc.section,
-                    column: loc.column,
-                    row: loc.row,
-                    position: 0
-                )
-                proxy.scrollTo(rowFirstHole, anchor: .center)
+    // MARK: - Street Column
+
+    private func streetColumn(startHole: Int, labelsOnLeft: Bool) -> some View {
+        VStack(spacing: 0) {
+            // Street header
+            HStack(spacing: 3) {
+                Image(systemName: "road.lanes")
+                    .font(.system(size: 7))
+                    .foregroundStyle(BoardTheme.accent.opacity(0.6))
+                Text(startHole == 1 ? "1st Street" : "2nd Street")
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(BoardTheme.secondaryText)
             }
-        }
-        if animated {
-            withAnimation(.easeInOut(duration: 0.3)) { action() }
-        } else {
-            action()
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 2)
+
+            // 12 groups of 5 holes — distributed evenly
+            ForEach(0..<12, id: \.self) { group in
+                holeGroup(
+                    startHole: startHole + group * 5,
+                    labelsOnLeft: labelsOnLeft
+                )
+                .frame(maxHeight: .infinity)
+
+                // Thin separator line between groups (not after last)
+                if group < 11 {
+                    let lastHoleInGroup = startHole + group * 5 + 4
+                    let isSkunkLine = lastHoleInGroup == 90
+                    let isDoubleSkunkLine = lastHoleInGroup == 60
+
+                    if isSkunkLine || isDoubleSkunkLine {
+                        skunkMarker(
+                            label: isDoubleSkunkLine ? "S×2" : "S",
+                            labelsOnLeft: labelsOnLeft
+                        )
+                    } else {
+                        Rectangle()
+                            .fill(BoardTheme.accent.opacity(0.08))
+                            .frame(height: 0.5)
+                            .padding(.horizontal, 8)
+                    }
+                }
+            }
+
+            // Double skunk marker at bottom of 1st Street (after hole 60)
+            if startHole == 1 {
+                skunkMarker(label: "S×2", labelsOnLeft: labelsOnLeft)
+            }
         }
     }
 
+    private func holeGroup(startHole: Int, labelsOnLeft: Bool) -> some View {
+        let endHole = startHole + 4
+
+        return HStack(spacing: 3) {
+            if labelsOnLeft {
+                groupLabel(endHole)
+            }
+
+            VStack(spacing: 0) {
+                ForEach(0..<5, id: \.self) { i in
+                    HoleRowView(holeNumber: startHole + i, players: players)
+                        .frame(maxHeight: .infinity)
+                }
+            }
+
+            if !labelsOnLeft {
+                groupLabel(endHole)
+            }
+        }
+    }
+
+    private func groupLabel(_ hole: Int) -> some View {
+        Text("\(hole)")
+            .font(.system(size: 8, design: .monospaced))
+            .foregroundStyle(BoardTheme.secondaryText.opacity(0.5))
+            .frame(width: 18)
+    }
+
+    private func skunkMarker(label: String, labelsOnLeft: Bool) -> some View {
+        HStack(spacing: 2) {
+            if !labelsOnLeft { Spacer() }
+            Rectangle()
+                .fill(Color.red.opacity(0.35))
+                .frame(height: 1)
+            Text(label)
+                .font(.system(size: 6, weight: .bold))
+                .foregroundStyle(Color.red.opacity(0.5))
+            Rectangle()
+                .fill(Color.red.opacity(0.35))
+                .frame(height: 1)
+            if labelsOnLeft { Spacer() }
+        }
+        .padding(.horizontal, 4)
+    }
+
+    // MARK: - Start / Finish
+
     private var startArea: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 8) {
             Image(systemName: "flag.fill")
-                .font(.title3)
+                .font(.caption2)
                 .foregroundStyle(BoardTheme.secondaryText)
 
             Text("START")
-                .font(.caption)
-                .fontWeight(.semibold)
+                .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(BoardTheme.secondaryText)
 
-            HStack(spacing: 8) {
+            HStack(spacing: 5) {
                 ForEach(0..<players.count, id: \.self) { idx in
                     Circle()
                         .fill(players[idx].frontPeg == 0 ? players[idx].color.color : Color.white.opacity(0.15))
-                        .frame(width: 10, height: 10)
+                        .frame(width: 8, height: 8)
                 }
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 5)
         .background(
             Capsule()
                 .fill(BoardTheme.sectionBackground)
         )
     }
 
-    private var winningHole: some View {
-        VStack(spacing: 6) {
+    private var finishArea: some View {
+        HStack(spacing: 6) {
             Image(systemName: "trophy.circle.fill")
-                .font(.system(size: 28))
+                .font(.system(size: 16))
                 .foregroundStyle(.yellow)
 
             Text("FINISH")
-                .font(.headline)
-                .fontWeight(.bold)
+                .font(.system(size: 10, weight: .bold))
                 .foregroundStyle(BoardTheme.primaryText)
 
-            HStack(spacing: 8) {
+            HStack(spacing: 5) {
                 ForEach(0..<players.count, id: \.self) { idx in
                     Circle()
                         .fill(players[idx].frontPeg >= 121 ? players[idx].color.color : BoardTheme.emptyHole)
-                        .frame(width: 14, height: 14)
+                        .frame(width: 10, height: 10)
                         .overlay(
                             Circle()
-                                .stroke(players[idx].color.color.opacity(0.3), lineWidth: 2)
+                                .stroke(players[idx].color.color.opacity(0.3), lineWidth: 1)
                         )
                 }
             }
 
             Text("121")
-                .font(.caption)
+                .font(.system(size: 8))
                 .foregroundStyle(BoardTheme.secondaryText)
         }
-        .padding()
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            Capsule()
                 .fill(BoardTheme.sectionBackground)
-                .shadow(color: .black.opacity(0.2), radius: 3, y: 2)
+                .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
         )
     }
 }
