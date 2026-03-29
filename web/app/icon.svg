@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#47341a"/>
+      <stop offset="100%" stop-color="#33200f"/>
+    </linearGradient>
+  </defs>
+  <!-- Wood background -->
+  <rect width="32" height="32" rx="7" fill="url(#wood)"/>
+  <!-- Peg holes (empty) -->
+  <circle cx="11" cy="8" r="2" fill="#8c7359" opacity="0.4"/>
+  <circle cx="21" cy="8" r="2" fill="#8c7359" opacity="0.4"/>
+  <circle cx="11" cy="16" r="2" fill="#8c7359" opacity="0.4"/>
+  <circle cx="21" cy="16" r="2" fill="#8c7359" opacity="0.4"/>
+  <circle cx="11" cy="24" r="2" fill="#8c7359" opacity="0.4"/>
+  <circle cx="21" cy="24" r="2" fill="#8c7359" opacity="0.4"/>
+  <!-- Red peg -->
+  <circle cx="11" cy="16" r="2.5" fill="#e64033">
+    <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <!-- Blue peg -->
+  <circle cx="21" cy="8" r="2.5" fill="#4d99ff">
+    <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite"/>
+  </circle>
+</svg>
