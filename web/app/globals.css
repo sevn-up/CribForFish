@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  --board-gradient-start: rgb(71, 46, 26);
+  --board-gradient-end: rgb(51, 31, 15);
+  --section-bg: rgb(89, 61, 36);
+  --input-bg: rgb(56, 36, 20);
+  --header-bg: rgb(46, 28, 15);
+  --empty-hole: rgba(140, 115, 89, 0.4);
+  --text-primary: rgb(242, 230, 209);
+  --text-secondary: rgb(191, 166, 133);
+  --accent: rgb(217, 166, 77);
+  --player-red: rgb(230, 64, 51);
+  --player-blue: rgb(77, 153, 255);
+  --player-green: rgb(64, 217, 102);
+}
+
+body {
+  background: var(--header-bg);
+  color: var(--text-primary);
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Animations */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out;
+}
